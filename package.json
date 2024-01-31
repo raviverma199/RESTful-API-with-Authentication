@@ -1,0 +1,21 @@
+{
+  "name": "restful-api-with-authentication",
+  "version": "1.0.0",
+  "description": "TsAuthAPI is a TypeScript-only backend project that focuses on building a RESTful API with authentication capabilities. The API provides endpoints for user registration, login, and accessing protected resources. It incorporates JWT (JSON Web Tokens) for secure authentication and authorization.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "nodemon": "^3.0.3",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,13 +1,50 @@
+<<<<<<< Updated upstream
 import express from 'express'
 const app = express()
 import {mainRoute} from './router/route'
+=======
+import express from "express";
+const app = express();
+import { mainRoute } from "./router/route";
+import connection from "./db/connection";
+>>>>>>> Stashed changes
 
-app.use(express.json())
+// ===================  import helmet for web secruity points  =======================
+import helmet from "helmet";
+import cors from "cors";
+connection();
 
-app.use('/',mainRoute)
+app.use(express.json());
+app.use("/", mainRoute);
 
+// ============================  web security =============================
+app.use(helmet());
+app.use(cors());
 
+app.use(
+  cors({
+    origin: "http://localhost:1000/",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+    optionsSuccessStatus: 204, // Respond with 204 No Content for preflight requests
+  })
+);
 
-app.listen(1000,()=>{
-    console.log("server is running on 1000 port");
-})
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    hsts: {
+      maxAge: 31536000, // 1 year in seconds
+      includeSubDomains: true,
+      preload: true,
+    },
+    frameguard: {
+      action: "deny",
+    },
+    referrerPolicy: { policy: "same-origin" },
+  })
+);
+
+app.listen(1000, () => {
+  console.log("server is running on 1000 port");
+});

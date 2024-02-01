@@ -1,7 +1,8 @@
 import express from 'express'
 const app = express()
 import {mainRoute} from './router/route'
-// import connection from './db/connection'
+import connection from './db/connection'
+connection()
 
 app.use(express.json())
 

@@ -13,6 +13,7 @@
   "dependencies": {
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^8.2.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
     "helmet": "^7.1.0",

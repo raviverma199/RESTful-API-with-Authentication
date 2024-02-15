@@ -111,6 +111,76 @@ router.get('/api/login',async(req:Request,res:Response)=>{
     }
 })
 
+route.post("/login_user", async (req, res) => {
+  try {
+    const { User_name, Password } = req.body;
+    const user = await user_signup.findOne({ User_name });
 
+    if (!user) {
+      return res
+        .status(401)
+        .json({ status: "error", message: "Invalid credentials" });
+    }
+
+    const isPasswordMatch = await bcrypt.compare(Password, user.Password);
+
+    if (!isPasswordMatch) {
+      return res
+        .status(401)
+        .json({ status: "error", message: "Invalid credentials" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { user_id: user._id, User_name: user.User_name },
+      process.env.KEY,
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "Login successful",
+      token: token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: "error", message: "Internal server error" });
+  }
+});
+
+// =====================================   middleware to verify the jsonwebtoken ===========================
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) {
+    return res
+      .status(401)
+      .json({ status: "error", message: "Unauthorized: Token is missing" });
+  }
+
+  jwt.verify(token, process.env.key, (err, decoded) => {
+    if (err) {
+      return res
+        .status(401)
+        .json({ status: "error", message: "Unauthorized: Invalid token" });
+    }
+
+    req.user = decoded;
+    next();
+  });
+};
+
+// Route for fetching all users (admin access only)
+route.get("/users", verifyToken, (req, res) => {
+  if (req.user.role === "admin") {
+    res
+      .status(200)
+      .json({ status: "success", message: "List of all users", users });
+  } else {
+    res.status(403).json({
+      status: "error",
+      message: "Access denied. Insufficient privileges.",
+    });
+  }
+});
 
 export { router as mainRoute };

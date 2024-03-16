@@ -1,8 +1,10 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 const router = express.Router();
-import { Request, Response } from "express";
 import mongoose from "mongoose";
 import * as bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 router.get("/", (req: Request, res: Response) => {
   try {
@@ -101,39 +103,33 @@ router.get("/api/get_Data", async (req, res) => {
   }
 });
 
-
-
-router.get('/api/login',async(req:Request,res:Response)=>{
-    try {
-        
-    } catch (error) {
-        console.log(error);
-    }
-})
-
-route.post("/login_user", async (req, res) => {
+/**
+ * 
+ * 
+// ====================================  Login API ==============================================
+ * 
+ * 
+ */
+router.post("/login_user", async (req, res) => {
   try {
     const { User_name, Password } = req.body;
-    const user = await user_signup.findOne({ User_name });
-
+    const user = await User_Data.findOne({ User_name });
     if (!user) {
       return res
         .status(401)
         .json({ status: "error", message: "Invalid credentials" });
     }
-
     const isPasswordMatch = await bcrypt.compare(Password, user.Password);
-
     if (!isPasswordMatch) {
       return res
         .status(401)
         .json({ status: "error", message: "Invalid credentials" });
     }
-
+    let Token_key = "Ravi#@#$#%^&*()";
     // Generate JWT token
-    const token = jwt.sign(
-      { user_id: user._id, User_name: user.User_name },
-      process.env.KEY,
+    const token: String = jwt.sign(
+      { user_id: user._id, user: user.First_Name },
+      Token_key,
       { expiresIn: "1h" }
     );
 
@@ -148,8 +144,8 @@ route.post("/login_user", async (req, res) => {
   }
 });
 
-// =====================================   middleware to verify the jsonwebtoken ===========================
-const verifyToken = (req, res, next) => {
+// // =====================================   middleware to verify the jsonwebtoken ===========================
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization;
   if (!token) {
     return res
@@ -157,30 +153,43 @@ const verifyToken = (req, res, next) => {
       .json({ status: "error", message: "Unauthorized: Token is missing" });
   }
 
-  jwt.verify(token, process.env.key, (err, decoded) => {
+  let key: string = "Ravi#$%$##$#";
+  jwt.verify(token, key, (err, decoded) => {
     if (err) {
       return res
         .status(401)
         .json({ status: "error", message: "Unauthorized: Invalid token" });
     }
 
-    req.user = decoded;
+    if(decoded){
+    // req.user = decoded;
     next();
+  }else{
+    res.json({msg:"token is not reconize"})
+  }
   });
 };
 
 // Route for fetching all users (admin access only)
-route.get("/users", verifyToken, (req, res) => {
-  if (req.user.role === "admin") {
-    res
-      .status(200)
-      .json({ status: "success", message: "List of all users", users });
-  } else {
-    res.status(403).json({
-      status: "error",
-      message: "Access denied. Insufficient privileges.",
-    });
-  }
-});
+// router.get("/users", verifyToken, (req: Request, res: Response) => {
+//   if (req.user && req.user.role === "admin") {
+//     res
+//       .status(200)
+//       .json({
+//         status: "success",
+//         message: "List of all users",
+//         user: req.User,
+//       });
+//   } else {
+//     res.status(403).json({
+//       status: "error",
+//       message: "Access denied. Insufficient privileges.",
+//     });
+//   }
+// });
+
+
+
+
 
 export { router as mainRoute };
